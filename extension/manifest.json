@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "CritiqueCortex",
+  "version": "1.2",
+  "description": "Auto‑scrape and summarize product reviews on common e‑commerce sites",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "declarativeContent"
+  ],
+  "host_permissions": [
+    "*://*.amazon.com/*",
+    "*://*.ebay.com/*",
+    "*://*.walmart.com/*",
+    "*://*.bestbuy.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.amazon.com/*",
+        "*://*.ebay.com/*",
+        "*://*.walmart.com/*",
+        "*://*.bestbuy.com/*"
+      ],
+      "js": ["utils.js", "adapters.js", "content_script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "CritiqueCortex"
+  }
+}

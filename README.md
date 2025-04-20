@@ -1,20 +1,41 @@
-# CritiqueCortex
+# CritiqueCortex Chrome Extension
 
-A Chrome extension that intelligently summarizes product reviews using a large language model (LLM) to help users make informed purchase decisions quickly.
+Start by cloning this git repository and following the pre-requisite steps. 
 
-## Features
+## Pre-requisites
 
-- **Automated Review Extraction:**  
-  - Dynamically scrapes reviews from product pages.
-  - Cleans and preprocesses review data for analysis.
+1. Run this command : ```pip install requirements.txt```
+2. Install Ollama : https://ollama.com/download
+3. Pull a model Locally : ```ollama pull qwen2:7b``` 
+4. Start Ollama in the background (In one terminal)
+```ollama serve```
 
-- **Interactive Summarization:**  
-  - Generates concise summaries highlighting pros, cons, themes, and overall sentiment using an LLM (e.g., GPT-4).
-  - Provides detailed aspect-based analysis (e.g., battery life, durability).
+The above steps will provide you with LLM running locally which we have used in our configuration. Refer to LiteLLM to replace the above LLM with something of your choice in ```config.py```
 
-- **Targeted Q&A:**  
-  - Lets users ask specific questions (e.g., “How is the durability?”) and returns context-aware answers.
 
-- **User-Friendly Interface:**  
-  - Displays summaries in an unobtrusive sidebar.
-  - Offers customizable settings and optional data visualizations.
+## Start the Flask server
+
+1. ```cd backend```
+2. ```python app.py``` : This will start the flask app and will help you make requests
+
+Note : make sure to have a python env and install the requirements.txt and then run the server so that we have all packages installed
+
+## Test the chrome Extension
+
+1. In Chrome go to `chrome://extensions`  
+2. Toggle **Developer mode** on  
+3. Click **Load unpacked** and select the **extension** folder  
+
+## How it works
+
+- Automatically activates on Amazon & Walmart product pages  
+- Injects a floating panel and scrapes:
+  - **Product info** (title, ID/ASIN)
+  - **All visible reviews**  
+- Logs everything to the console for now  
+- Ready for you to plug in your summarizer or send data to your backend  
+
+## Next steps
+
+- Flesh out the `EbayAdapter` & `BestbuyAdapter`  
+- Style the panel & add interactive querying UI  

@@ -1,0 +1,5 @@
+# Ignore Python byte‑compiled cache directories
+__pycache__/
+
+# Ignore your critique folder
+critique/
