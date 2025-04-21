@@ -4,7 +4,7 @@ Start by cloning this git repository and following the pre-requisite steps.
 
 ## Pre-requisites
 
-1. Run this command : ```pip install requirements.txt```
+1. Run this command : ```pip install -r requirements.txt```
 2. Install Ollama : https://ollama.com/download
 3. Pull a model Locally : ```ollama pull qwen2:7b``` 
 4. Start Ollama in the background (In one terminal)
