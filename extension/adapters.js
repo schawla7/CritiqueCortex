@@ -320,10 +320,77 @@ class WalmartAdapter {
   }
 }
 
+class EbayAdapter {
+    /**
+     * Extract the product title and item ID from an eBay listing page.
+     */
+    extractProductInfo(doc) {
+     
+      let title = "";
+      const rawTitle = doc.querySelector("#itemTitle");
+      if (rawTitle) {
+        title = rawTitle.innerText.replace(/^Details about\s*/i, "").trim();
+      } else {
+        title = doc.querySelector("h1")?.innerText.trim() || "";
+      }
+  
+      // 2) Item ID
+      const match = window.location.pathname.match(/\/(\d+)(?:[/?]|$)/);
+      const itemId = match ? match[1] : "";
+  
+      console.log("EbayAdapter: title →", title, "itemId →", itemId);
+      return { title, itemId };
+    }
+  
+    /**
+     * Scrape up to maxPages of reviews from the on-page review widget (#rwid).
+     * eBay typically only inlines a handful of reviews; for more, you'd
+     * have to hit their /urw/.../product-reviews endpoint (out of scope here).
+     */
+    async extractAllReviews(doc, maxPages = 1) {
+      const { itemId } = this.extractProductInfo(doc);
+      if (!itemId) {
+        console.warn("EbayAdapter: no itemId found—skipping reviews");
+        return [];
+      }
+  
+      // eBay inlines reviews under #rwid
+      const reviewRoot = doc.querySelector("#rwid");
+      if (!reviewRoot) {
+        console.warn("EbayAdapter: no #rwid review widget found");
+        return [];
+      }
+  
+      const reviewEls = reviewRoot.querySelectorAll(".ebay-review-section");
+      const reviews = Array.from(reviewEls).map(el => {
+        // rating: the aria-label on the star widget, e.g. "4.5 out of 5 stars"
+        const star = el.querySelector(".ebay-star-rating span[aria-label]");
+        let rating = null;
+        if (star) {
+          const m = star.getAttribute("aria-label").match(/([\d.]+)\s*out of/);
+          rating = m ? parseFloat(m[1]) : null;
+        }
+  
+        const title  = el.querySelector(".review-item-title")?.innerText.trim()  || "";
+        const text   = el.querySelector(".review-item-content")?.innerText.trim()|| "";
+        const author = el.querySelector(".review-item-author")?.innerText.trim() || "";
+        const date   = el.querySelector(".review-item-date")?.innerText.trim()   || "";
+        const verified = Boolean(el.querySelector(".review-item-verified"));
+  
+        return { rating, title, text, author, date, verified };
+      });
+  
+      console.log(`EbayAdapter: scraped ${reviews.length} reviews`);
+      return reviews;
+    }
+  }
+  
+
 function getSiteAdapter(host) {
   if (host.includes("amazon.com")) return new AmazonAdapter();
   if (host.includes("walmart.com")) return new WalmartAdapter();
   if (host.includes("bestbuy.com")) return new BestBuyAdapter();
+  if (host.includes("ebay.com")) return new EbayAdapter();
   throw new Error("No adapter for " + host);
 }
 
@@ -339,6 +406,9 @@ function isProductPage(host, doc) {
   }
   if (host.includes("bestbuy.com")) {
     return Boolean(doc.querySelector('h1'));
+  }
+  if (host.includes("ebay.com")) {
+    return Boolean(doc.querySelector("#itemTitle") || doc.querySelector("h1"));
   }
   return false;
 }
