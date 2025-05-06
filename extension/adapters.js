@@ -106,12 +106,77 @@ class AmazonAdapter {
 }
 
 class BestBuyAdapter {
-  extractProductInfo(doc) {
-    throw new Error("BestBuyAdapter.extractProductInfo not implemented");
-  }
-  async extractAllReviews(doc, maxPages = 1) {
-    return [];
-  }
+    extractProductInfo(doc) {
+        const titleEl = doc.querySelector('h1');
+        const title   = titleEl?.innerText.trim() || '';
+
+        // Always grab SKU from the URL
+        const params = new URL(window.location.href).searchParams;
+        const sku    = params.get('skuId') || '';
+
+        console.log("BestBuyAdapter: title →", title, "sku →", sku);
+        return { title, sku };
+    }
+      
+    async extractAllReviews(doc, maxPages = 3) {
+        const { sku } = this.extractProductInfo(document);
+    if (!sku) {
+      console.warn("BestBuyAdapter: no SKU found—skipping reviews");
+      return [];
+    }
+
+    const reviews = [];
+    const endpoint = 'https://www.bestbuy.com/graphql';
+
+    // GraphQL query to pull reviews by SKU
+    const query = `
+      query GetReviews($sku: String!, $page: Int!) {
+        reviewsBySkuId(sku: $sku, page: $page) {
+          memberName
+          isVerifiedPurchase
+          submissionDate
+          rating
+          title
+          reviewText
+        }
+      }
+    `;
+
+    for (let page = 1; page <= maxPages; page++) {
+      try {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query,
+            variables: { sku, page }
+          })
+        });
+        if (!resp.ok) throw new Error(`Status ${resp.status}`);
+        const { data } = await resp.json();
+
+        const pageReviews = (data.reviewsBySkuId || []).map(r => ({
+          author:            r.memberName,
+          verifiedPurchase:  r.isVerifiedPurchase,
+          date:              r.submissionDate,
+          rating:            r.rating,
+          title:             r.title,
+          text:              r.reviewText
+        }));
+
+        console.log(`BestBuyAdapter: page ${page} → ${pageReviews.length} reviews`);
+        if (!pageReviews.length) break;
+        reviews.push(...pageReviews);
+
+      } catch (err) {
+        console.error("BestBuyAdapter: error fetching reviews page", page, err);
+        break;
+      }
+    }
+
+    console.log("BestBuyAdapter: total reviews →", reviews.length);
+    return reviews;
+      }
 }
 
 // walmartAdapter.js
@@ -273,7 +338,7 @@ function isProductPage(host, doc) {
     );
   }
   if (host.includes("bestbuy.com")) {
-    return true;
+    return Boolean(doc.querySelector('h1'));
   }
   return false;
 }

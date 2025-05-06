@@ -1,5 +1,11 @@
 // content_script.js
 (async function() {
+// EARLY LOGGING FOR DEBUGGING:
+//   console.log("🔍 CritiqueCortex content script loaded");
+//   console.log("   • Host:", location.hostname);
+//   console.log("   • document.readyState:", document.readyState);
+//   console.log("   • SKU-el:", document.querySelector('div[data-sku-id]'));
+//   console.log("   • H1-el:", document.querySelector('h1'));
   const { isProductPage, getSiteAdapter, injectPanel, showStatus, clearStatus, renderSummary } = window.CritiqueCortex;
 
   // 1) Only run on valid product pages
@@ -23,7 +29,7 @@
   showStatus("Waiting for AI summary…");
   let summaryData;
   try {
-    const resp = await fetch("http://localhost:5000/summarize", {
+    const resp = await fetch("http://localhost:9000/summarize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reviews, specs: product })
@@ -81,7 +87,7 @@
       showStatus("Waiting for AI chat…");
 
       try {
-        const resp = await fetch("http://localhost:5000/chat", {
+        const resp = await fetch("http://localhost:9000/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reviews, query: q })
