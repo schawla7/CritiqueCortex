@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 from modules.summarizer import summarize_reviews
 from modules.interactive_query import interactive_query
+from modules.ir_pipeline      import ReviewIndexer, ir_augmented_chat
 
 app = Flask(__name__)
 CORS(app)
@@ -42,10 +43,16 @@ def chat():
     data = request.get_json(force=True)
     reviews = data.get("reviews", [])
     user_q  = data.get("query", "")
-    # call your interactive_query helper (returns a Pydantic model)
-    chat_resp = interactive_query(reviews, user_q)
-    # jsonify the dict
-    return jsonify(chat_resp.dict())
+    # # call your interactive_query helper (returns a Pydantic model)
+    # chat_resp = interactive_query(reviews, user_q)
+    # # jsonify the dict
+    # return jsonify(chat_resp.dict())
+    indexer = ReviewIndexer()
+    indexer.build_index(reviews)
+
+    # retrieve & chat only on the top_k most relevant reviews
+    result = ir_augmented_chat(reviews, user_q, indexer, top_k=5)
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)
