@@ -28,7 +28,7 @@ Note : make sure to have a python env and install the requirements.txt and then 
 
 ## How it works
 
-- Automatically activates on Amazon & Walmart product pages  
+- Automatically activates on Amazon, Walmart, Ebay & Best Buy product pages  
 - Injects a floating panel and scrapes:
   - **Product info** (title, ID/ASIN)
   - **All visible reviews**  
@@ -37,5 +37,4 @@ Note : make sure to have a python env and install the requirements.txt and then 
 
 ## Next steps
 
-- Flesh out the `EbayAdapter` & `BestbuyAdapter`  
 - Style the panel & add interactive querying UI  

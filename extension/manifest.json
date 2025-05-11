@@ -15,6 +15,16 @@
     "*://*.walmart.com/*",
     "*://*.bestbuy.com/*"
   ],
+  "icons": {
+    "48": "assets/logo.png",
+    "128": "assets/logo.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/logo.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "background": {
     "service_worker": "background.js"
   },
