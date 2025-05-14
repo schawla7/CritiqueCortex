@@ -35,6 +35,7 @@ Note : make sure to have a python env and install the requirements.txt and then 
 - Logs everything to the console for now  
 - Ready for you to plug in your summarizer or send data to your backend  
 
-## Next steps
+## Known Issues
 
-- Style the panel & add interactive querying UI  
+- Ollama might not let you serve the model using ollama serve, indicating an error like : PORT ALREADY OCCUPIED. To fix this, head over to task manager and end all running tasks with the name Ollama and then try the command again.
+- For other issues, raise a request and we'd be happy to help you debug!
